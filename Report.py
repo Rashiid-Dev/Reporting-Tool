@@ -23,7 +23,7 @@ view_query = """ create view truepath as
 show_view = "select * from truepath"
 
 # joining truepath and articles get the titles
-jointrueart = "select * from articles join truepath on articles.slug=truepath.path;"
+jointrueart = "select * from articles join truepath on articles.slug=truepath.replace group by slug limit 10;"
 #"select name,slug from authors join articles on authors.id=articles.author;"
 
 
@@ -39,20 +39,32 @@ def topthreename():
     return results
 
 
-def queryview():
-	c.execute(view_query)
-	results = c.fetchall()
-    return results
-
 def showview():
     c.execute(show_view)
     results = c.fetchall()
     return results
 
+
 def jointhem():
     c.execute(jointrueart)
     results = c.fetchall()
     return results
+
+
+# get title and views count
+select title, count(*) as num from articles join truepath on articles.slug = truepath.replace group by title order by num desc
+
+# get all tables joined
+select * from authors join articles on authors.id = articles.author join truepath on articles.slug = truepath.replace limit 10
+
+# get authors and their articles
+    select name, b.title from (select * from articles join truepath on articles.slug=truepath.replace) as b join authors on authors.id = b.author limit 10
+
+# top three articles with name and views
+select b.title, count(*) as num from (select * from articles join truepath on articles.slug=truepath.replace) as b join authors on authors.id = b.author group by title order by num desc limit 3
+
+# authors and their total views
+select name, count(*) as num from (select * from articles join truepath on articles.slug=truepath.replace) as b join authors on authors.id = b.author group by name order by num desc
 
 
 # prints all results
@@ -68,12 +80,12 @@ print("_____________________\n")
 # print('"Bears love berries, alleges bear" - ' + str(topthreenum()[1][0]) + ' views\n')
 # print('"Bad things gone, say good people" - ' + str(topthreenum()[2][0]) + ' views\n')
 # print("Query 2 Starting ......")
-# print(topthreename())
+# print(topthreename())`
 for a, b in topthreename():
     print(a, "-", b, "views")
 
 # creating views
-print(jointhem())
+# print(jointhem())
 
 
 # print(str(topthreename()[a][0]) + " - " + str(topthreename()[a][1]) + " views")
